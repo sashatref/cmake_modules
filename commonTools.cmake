@@ -170,7 +170,10 @@ function(deployTargets)
             message(FATAL_ERROR "You must provide MAINTARGET")
         endif()
 
-        set(DEPLOY_TOOL_PATH "/home/spirit/Documents/linuxdeployqt-continuous-x86_64.AppImage")
+        if(LINUX_DEPLOY_TOOL)
+            message(FATAL_ERROR "You must provide LINUX_DEPLOY_TOOL")
+        endif()
+
         get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
 
         JOIN("${PARSED_ARGS_TARGETS} ${PARSED_ARGS_MAINTARGET}" " " TARGETS_JOIN_LIST)
