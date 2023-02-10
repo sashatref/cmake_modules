@@ -170,7 +170,7 @@ function(deployTargets)
             message(FATAL_ERROR "You must provide MAINTARGET")
         endif()
 
-        if(LINUX_DEPLOY_TOOL)
+        if(NOT LINUX_DEPLOY_TOOL)
             message(FATAL_ERROR "You must provide LINUX_DEPLOY_TOOL")
         endif()
 
@@ -182,7 +182,7 @@ function(deployTargets)
             list(APPEND DEPLOY_TARGETS "\${CMAKE_INSTALL_PREFIX}/lib/\$<TARGET_FILE_NAME:${DEPLOY_TARGET}>")
         endforeach()
 
-        install(CODE "set(DEPLOY_TOOL_PATH \"${DEPLOY_TOOL_PATH}\")")
+        install(CODE "set(DEPLOY_TOOL_PATH \"${LINUX_DEPLOY_TOOL}\")")
         install(CODE "set(DEPLOY_TARGETS \"${DEPLOY_TARGETS}\")")
         install(CODE "set(_qt5_qmake_location \"${_qt5_qmake_location}\")")
         install(CODE "set(MAIN_TARGET \"\${CMAKE_INSTALL_PREFIX}/\$<TARGET_FILE_NAME:${PARSED_ARGS_MAINTARGET}>\")")
