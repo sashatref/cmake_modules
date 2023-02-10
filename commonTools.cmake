@@ -166,7 +166,7 @@ function(deployTargets)
         ]])
 
     else()
-        message(FATAL_ERROR "Not implemented")
+        message(STATUS "Not implemented")
     endif()
 endfunction()
 
