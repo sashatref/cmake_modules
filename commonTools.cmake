@@ -122,7 +122,7 @@ endfunction()
 
 # deployqt
 function(deployTargets)
-    cmake_parse_arguments(PARSED_ARGS "" "SUBDIR" "TARGETS" ${ARGN})
+    cmake_parse_arguments(PARSED_ARGS "" "SUBDIR;MAINTARGET" "TARGETS" ${ARGN})
 
     if(NOT PARSED_ARGS_TARGETS)
         message(FATAL_ERROR "You must provide TARGETS list")
@@ -165,8 +165,47 @@ function(deployTargets)
             endif()
         ]])
 
-    else()
-        message(STATUS "Not implemented")
+    elseif(LINUX)
+        if(NOT PARSED_ARGS_MAINTARGET)
+            message(FATAL_ERROR "You must provide MAINTARGET")
+        endif()
+
+        set(DEPLOY_TOOL_PATH "/home/spirit/Documents/linuxdeployqt-continuous-x86_64.AppImage")
+        get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
+
+        JOIN("${PARSED_ARGS_TARGETS} ${PARSED_ARGS_MAINTARGET}" " " TARGETS_JOIN_LIST)
+        message(STATUS "Targets to deploy [${TARGETS_JOIN_LIST}]")
+        foreach(DEPLOY_TARGET ${PARSED_ARGS_TARGETS})
+            list(APPEND DEPLOY_TARGETS "\${CMAKE_INSTALL_PREFIX}/lib/\$<TARGET_FILE_NAME:${DEPLOY_TARGET}>")
+        endforeach()
+
+        install(CODE "set(DEPLOY_TOOL_PATH \"${DEPLOY_TOOL_PATH}\")")
+        install(CODE "set(DEPLOY_TARGETS \"${DEPLOY_TARGETS}\")")
+        install(CODE "set(_qt5_qmake_location \"${_qt5_qmake_location}\")")
+        install(CODE "set(MAIN_TARGET \"\${CMAKE_INSTALL_PREFIX}/\$<TARGET_FILE_NAME:${PARSED_ARGS_MAINTARGET}>\")")
+        #install(CODE "set(ENV{PATH} ENV{PATH})")
+
+        install(CODE [[
+            set(APP_BUILD_DIR "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}")
+            message(STATUS "DEPLOY_TOOL_PATH: ${DEPLOY_TOOL_PATH}")
+            message(STATUS "MAIN_TARGET: ${MAIN_TARGET}")
+            message(STATUS "APP_BUILD_DIR: ${APP_BUILD_DIR}")
+            set(EXECUTABLE_LIST)
+            message(STATUS "Deploy files:")
+            foreach(T ${DEPLOY_TARGETS})
+                message(STATUS "DEPLOY_TARGETS: ${T}")
+                list(APPEND EXECUTABLE_LIST "-executable=${T}")
+            endforeach()
+
+            message(${EXECUTABLE_LIST})
+
+            execute_process(COMMAND "${DEPLOY_TOOL_PATH}" "${MAIN_TARGET}" ${EXECUTABLE_LIST} -unsupported-allow-new-glibc
+                            "-qmake=${_qt5_qmake_location}"
+                            WORKING_DIRECTORY "${APP_BUILD_DIR}" RESULT_VARIABLE ret)
+            if(NOT ret EQUAL "0")
+                message( FATAL_ERROR "Bad exit status. Error [${ret}]")
+            endif()
+        ]])
     endif()
 endfunction()
 
