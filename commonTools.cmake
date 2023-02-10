@@ -200,8 +200,6 @@ function(deployTargets)
                 list(APPEND EXECUTABLE_LIST "-executable=${T}")
             endforeach()
 
-            message(${EXECUTABLE_LIST})
-
             execute_process(COMMAND "${DEPLOY_TOOL_PATH}" "${MAIN_TARGET}" ${EXECUTABLE_LIST} -unsupported-allow-new-glibc
                             "-qmake=${_qt5_qmake_location}"
                             WORKING_DIRECTORY "${APP_BUILD_DIR}" RESULT_VARIABLE ret)
