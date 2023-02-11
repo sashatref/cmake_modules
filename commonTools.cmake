@@ -207,6 +207,43 @@ function(deployTargets)
                 message( FATAL_ERROR "Bad exit status. Error [${ret}]")
             endif()
         ]])
+    elseif(APPLE)
+        if(NOT PARSED_ARGS_MAINTARGET)
+            message(FATAL_ERROR "You must provide MAINTARGET")
+        endif()
+
+        get_target_property(QMAKE_LOCATION Qt5::qmake LOCATION)
+        get_filename_component(QT_BIN_LOCATION "${QMAKE_LOCATION}" DIRECTORY)
+        set(DEPLOY_TOOL_PATH "${QT_BIN_LOCATION}/macdeployqt")
+
+        JOIN("${PARSED_ARGS_TARGETS} ${PARSED_ARGS_MAINTARGET}" " " TARGETS_JOIN_LIST)
+        message(STATUS "Targets to deploy [${TARGETS_JOIN_LIST}]")
+        foreach(DEPLOY_TARGET ${PARSED_ARGS_TARGETS})
+            list(APPEND DEPLOY_TARGETS "\${CMAKE_INSTALL_PREFIX}/lib/\$<TARGET_FILE_NAME:${DEPLOY_TARGET}>")
+        endforeach()
+
+        install(CODE "set(DEPLOY_TOOL_PATH \"${DEPLOY_TOOL_PATH}\")")
+        install(CODE "set(DEPLOY_TARGETS \"${DEPLOY_TARGETS}\")")
+        install(CODE "set(MAIN_TARGET \"\${CMAKE_INSTALL_PREFIX}/\$<TARGET_FILE_NAME:${PARSED_ARGS_MAINTARGET}>.app\")")
+
+        install(CODE [[
+            set(APP_BUILD_DIR "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}")
+            message(STATUS "DEPLOY_TOOL_PATH: ${DEPLOY_TOOL_PATH}")
+            message(STATUS "MAIN_TARGET: ${MAIN_TARGET}")
+            message(STATUS "APP_BUILD_DIR: ${APP_BUILD_DIR}")
+            set(EXECUTABLE_LIST)
+            message(STATUS "Deploy files:")
+            foreach(T ${DEPLOY_TARGETS})
+                message(STATUS "DEPLOY_TARGETS: ${T}")
+                list(APPEND EXECUTABLE_LIST "-executable=${T}")
+            endforeach()
+
+            execute_process(COMMAND "${DEPLOY_TOOL_PATH}" "${MAIN_TARGET}" ${EXECUTABLE_LIST}
+                            WORKING_DIRECTORY "${APP_BUILD_DIR}" RESULT_VARIABLE ret)
+            if(NOT ret EQUAL "0")
+                message( FATAL_ERROR "Bad exit status. Error [${ret}]")
+            endif()
+        ]])
     endif()
 endfunction()
 
