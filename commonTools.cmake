@@ -61,19 +61,21 @@ function(generateTarget)
     foreach(TARGET ${PARSED_ARGS_TARGETS})
         set(POSTFIX "")
 
-        if(MSVC_TOOLSET_VERSION)
-            set(POSTFIX "${POSTFIX}-vc${MSVC_TOOLSET_VERSION}")
-        endif()
+        if(WIN32)
+            if(MSVC_TOOLSET_VERSION)
+                set(POSTFIX "${POSTFIX}-vc${MSVC_TOOLSET_VERSION}")
+            endif()
 
-        if(SYSTEM_X64)
-            set(POSTFIX "${POSTFIX}-amd64")
-        endif()
+            if(SYSTEM_X64)
+                set(POSTFIX "${POSTFIX}-amd64")
+            endif()
 
-        if(PROJECT_TYPE STREQUAL "EXECUTABLE")
-            #nope
-        else()
-            set(POSTFIX "${POSTFIX}-mt")
-        endif()
+            if(PROJECT_TYPE STREQUAL "EXECUTABLE")
+                #nope
+            else()
+                set(POSTFIX "${POSTFIX}-mt")
+            endif()
+        endif(WIN32)
 
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             set(POSTFIX "${POSTFIX}-d")
