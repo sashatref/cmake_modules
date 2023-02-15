@@ -17,17 +17,19 @@ function(deployTrFromPath)
         message(FATAL_ERROR "You must provide INPUT_DIR")
     endif()
 
-    file(COPY "${PARSED_ARGS_INPUT_DIR}/"
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations
-        FILES_MATCHING
-            PATTERN "*.qm"
-    )
-    message(STATUS "Move tr-files ${PARSED_ARGS_INPUT_DIR} => ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    if(WIN32 OR LINUX)
+        file(COPY "${PARSED_ARGS_INPUT_DIR}/"
+            DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations
+            FILES_MATCHING
+                PATTERN "*.qm"
+        )
+        message(STATUS "Move tr-files ${PARSED_ARGS_INPUT_DIR} => ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-    install(DIRECTORY "${PARSED_ARGS_INPUT_DIR}/"
-        DESTINATION "translations"
-        FILES_MATCHING
-            PATTERN "*.qm")
+        install(DIRECTORY "${PARSED_ARGS_INPUT_DIR}/"
+            DESTINATION "translations"
+            FILES_MATCHING
+                PATTERN "*.qm")
+    endif()
 endfunction()
 
 # move headers to build directory
