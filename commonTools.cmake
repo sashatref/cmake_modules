@@ -128,10 +128,6 @@ endfunction()
 function(deployTargets)
     cmake_parse_arguments(PARSED_ARGS "" "SUBDIR;MAINTARGET" "TARGETS" ${ARGN})
 
-    if(NOT PARSED_ARGS_TARGETS)
-        message(FATAL_ERROR "You must provide TARGETS list")
-    endif()
-
     if(WIN32)
         # search windeployqt.exe
         if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
@@ -242,7 +238,7 @@ function(deployTargets)
                 list(APPEND EXECUTABLE_LIST "-executable=${T}")
             endforeach()
 
-            execute_process(COMMAND "${DEPLOY_TOOL_PATH}" "${MAIN_TARGET}" ${EXECUTABLE_LIST}
+            execute_process(COMMAND "${DEPLOY_TOOL_PATH}" "${MAIN_TARGET}" ${EXECUTABLE_LIST} -dmg
                             WORKING_DIRECTORY "${APP_BUILD_DIR}" RESULT_VARIABLE ret)
             if(NOT ret EQUAL "0")
                 message( FATAL_ERROR "Bad exit status. Error [${ret}]")
