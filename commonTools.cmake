@@ -143,9 +143,9 @@ function(deployTargets)
             set(DEPLOY_TOOL_PATH "${qt5_install_prefix}/bin/windeployqt.exe")
         endif()
 
-        JOIN("${PARSED_ARGS_TARGETS}" " " TARGETS_JOIN_LIST)
+        JOIN("${PARSED_ARGS_MAINTARGET} ${PARSED_ARGS_TARGETS}" " " TARGETS_JOIN_LIST)
         message(STATUS "Targets to deploy [${TARGETS_JOIN_LIST}]")
-        foreach(DEPLOY_TARGET ${PARSED_ARGS_TARGETS})
+        foreach(DEPLOY_TARGET ${PARSED_ARGS_MAINTARGET} ${PARSED_ARGS_TARGETS})
             list(APPEND DEPLOY_TARGETS "\${CMAKE_INSTALL_PREFIX}/${PARSED_ARGS_SUBDIR}\$<TARGET_FILE_NAME:${DEPLOY_TARGET}>")
         endforeach()
 
